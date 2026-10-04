@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Admin — Inventory Manager{% endblock %}
+{% block body %}
+<h1>Superuser Admin</h1>
+
+<div class="card">
+  <h2>Businesses &amp; Stores</h2>
+  {% for b in businesses %}
+    <div style="border-bottom:1px solid var(--border); padding:0.6rem 0;">
+      <strong>{{ b.name }}</strong>
+      <a class="btn btn-sm btn-secondary" href="/business?business_id={{ b.id }}">Manage</a>
+      <a class="btn btn-sm btn-secondary" href="/dashboard?business_id={{ b.id }}">Dashboard</a>
+      <div class="muted" style="margin-top:0.3rem;">
+        Stores:
+        {% for s in b.stores %}<span class="badge badge-ok">{{ s.name }}</span> {% else %}<em>none</em>{% endfor %}
+      </div>
+      <form method="post" action="/admin/stores" class="inline-form" style="margin-top:0.4rem;">
+        <input type="hidden" name="business_id" value="{{ b.id }}" />
+        <input name="name" placeholder="New store name" required style="max-width:200px;" />
+        <input name="location" placeholder="Location" style="max-width:200px;" />
+        <button class="btn-sm" type="submit">Add store</button>
+      </form>
+    </div>
+  {% else %}
+    <p class="muted">No businesses yet.</p>
+  {% endfor %}
+
+  <form method="post" action="/admin/businesses" class="inline-form" style="margin-top:1rem;">
+    <input name="name" placeholder="New business name" required style="max-width:260px;" />
+    <button type="submit">Create business</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Users</h2>
+  <a class="btn btn-sm" href="/admin/users/new">+ New user</a>
+  <table>
+    <thead><tr><th>Username</th><th>Role</th><th>Business access</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.username }}</td>
+        <td><span class="badge badge-role">{{ u.role.value }}</span></td>
+        <td class="muted">
+          {% for ba in u.business_access %}{{ ba.business.name }}{% if not loop.last %}, {% endif %}{% else %}—{% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

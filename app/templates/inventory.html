@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Inventory — {{ active.name }}{% endblock %}
+{% block body %}
+<h1>{{ active.name }} — Inventory</h1>
+
+<div class="card">
+  <form method="get" action="/business/{{ active.id }}/inventory" class="inline-form">
+    <label style="margin:0;">Store:</label>
+    <select name="store_id" onchange="this.form.submit()">
+      {% for s in stores %}
+      <option value="{{ s.id }}" {% if s.id == store_id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Set stock levels</h2>
+  <p class="muted">Set quantity and low-stock threshold per catalog item for this store.</p>
+  <table>
+    <thead><tr><th>Item</th><th>Price</th><th>Current qty</th><th>Threshold</th><th>Update</th></tr></thead>
+    <tbody>
+      {% for item in catalog %}
+      {% set inv = inv_map.get(item.id) %}
+      <tr>
+        <td>{{ item.name }} <span class="muted">({{ item.sku }})</span></td>
+        <td>${{ "%.2f"|format(item.price) }}</td>
+        <td>{{ inv.quantity if inv else 0 }}</td>
+        <td>{{ inv.low_stock_threshold if inv else 5 }}</td>
+        <td>
+          <form method="post" action="/business/{{ active.id }}/inventory" class="inline-form">
+            <input type="hidden" name="store_id" value="{{ store_id }}" />
+            <input type="hidden" name="catalog_item_id" value="{{ item.id }}" />
+            <input type="number" name="quantity" value="{{ inv.quantity if inv else 0 }}" min="0" />
+            <input type="number" name="low_stock_threshold" value="{{ inv.low_stock_threshold if inv else 5 }}" min="0" />
+            <button class="btn-sm" type="submit">Save</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">No catalog items. Add some first.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

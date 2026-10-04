@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Inventory Manager{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  {% if user %}
+  <header class="topbar">
+    <div>
+      <span class="brand">📦 Inventory Manager</span>
+    </div>
+    <nav>
+      {% if user.role == Role.SUPERUSER %}
+        <a href="/admin">Admin</a>
+        <a href="/business">Businesses</a>
+        <a href="/dashboard">Dashboard</a>
+      {% elif user.role == Role.BUSINESS_ADMIN %}
+        <a href="/business">Catalog</a>
+        <a href="/dashboard">Dashboard</a>
+      {% else %}
+        <a href="/sales">Sales</a>
+      {% endif %}
+      <span class="muted">{{ user.username }} ({{ user.role.value }})</span>
+      <a href="/logout">Logout</a>
+    </nav>
+  </header>
+  {% endif %}
+  <div class="container">
+    {% block body %}{% endblock %}
+  </div>
+</body>
+</html>

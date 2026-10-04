@@ -1,0 +1,15 @@
+# Runtime data (SQLite DB + uploaded photos) — do not commit
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

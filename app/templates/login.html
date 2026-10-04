@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login — Inventory Manager</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container" style="max-width: 400px;">
+    <div class="card">
+      <h1>📦 Inventory Manager</h1>
+      {% if error %}<div class="error">{{ error }}</div>{% endif %}
+      <form method="post" action="/login">
+        <label>Username</label>
+        <input name="username" autofocus required />
+        <label>Password</label>
+        <input name="password" type="password" required />
+        <div style="margin-top: 1rem;">
+          <button type="submit">Sign in</button>
+        </div>
+      </form>
+      <p class="muted" style="margin-top:1rem; font-size:0.8rem;">
+        Demo logins: <code>admin / admin123</code> (superuser),
+        <code>acme_admin / acme123</code>, <code>acme_sales / sales123</code>
+      </p>
+    </div>
+  </div>
+</body>
+</html>

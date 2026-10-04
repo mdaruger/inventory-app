@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — {{ active.name }}{% endblock %}
+{% block body %}
+<h1>{{ active.name }} — Dashboard</h1>
+
+{% if businesses|length > 1 %}
+<div class="card">
+  <form method="get" action="/dashboard" class="inline-form">
+    <label style="margin:0;">Business:</label>
+    <select name="business_id" onchange="this.form.submit()">
+      {% for b in businesses %}
+      <option value="{{ b.id }}" {% if b.id == active.id %}selected{% endif %}>{{ b.name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+{% endif %}
+
+<div class="stat-grid">
+  <div class="stat"><div class="num">{{ data.total_units }}</div><div class="lbl">Total units in stock</div></div>
+  <div class="stat"><div class="num">{{ data.distinct_items }}</div><div class="lbl">Distinct items stocked</div></div>
+  <div class="stat"><div class="num">{{ data.store_count }}</div><div class="lbl">Stores</div></div>
+</div>
+
+{% for ps in data.per_store %}
+<div class="card">
+  <h2>{{ ps.store.name }} <span class="muted" style="font-size:0.85rem;">— {{ ps.total_units }} units</span></h2>
+
+  <h3>In stock ({{ ps.in_stock|length }})</h3>
+  <table>
+    <thead><tr><th>Item</th><th>SKU</th><th>Qty</th></tr></thead>
+    <tbody>
+      {% for i in ps.in_stock %}
+      <tr><td>{{ i.name }}</td><td>{{ i.sku }}</td><td>{{ i.quantity }}</td></tr>
+      {% else %}
+      <tr><td colspan="3" class="muted">Nothing in stock.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:1rem;">Low / out of stock ({{ ps.low_stock|length }})</h3>
+  <table>
+    <thead><tr><th>Item</th><th>SKU</th><th>Qty</th><th>Threshold</th><th>Status</th></tr></thead>
+    <tbody>
+      {% for i in ps.low_stock %}
+      <tr>
+        <td>{{ i.name }}</td><td>{{ i.sku }}</td><td>{{ i.quantity }}</td><td>{{ i.threshold }}</td>
+        <td>{% if i.quantity == 0 %}<span class="badge badge-low">OUT</span>{% else %}<span class="badge badge-low">LOW</span>{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="muted">All items above threshold.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card"><p class="muted">No stores for this business yet.</p></div>
+{% endfor %}
+{% endblock %}

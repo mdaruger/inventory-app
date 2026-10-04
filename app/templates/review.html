@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Review extracted items — {{ active.name }}{% endblock %}
+{% block body %}
+<h1>Review extracted items</h1>
+<p class="muted">OCR ran on {{ candidates|length }} photo(s). Edit any field, uncheck rows you
+don't want, then confirm. Rows flagged <span class="badge badge-low">low</span> need a closer look.</p>
+
+<div class="card">
+  <table id="review-table">
+    <thead>
+      <tr><th>Keep</th><th>Photo</th><th>Name</th><th>Price</th><th>SKU</th><th>Confidence</th></tr>
+    </thead>
+    <tbody>
+      {% for c in candidates %}
+      <tr>
+        <td><input type="checkbox" class="keep" checked style="width:auto;" /></td>
+        <td>{% if c.image %}<img class="thumb" src="/uploads/{{ c.image }}" />{% endif %}
+            <input type="hidden" class="image" value="{{ c.image }}" /></td>
+        <td><input class="name" value="{{ c.name }}" placeholder="(enter name)" /></td>
+        <td><input class="price" type="number" step="0.01" value="{{ '%.2f'|format(c.price) }}" /></td>
+        <td><input class="sku" value="{{ c.sku }}" placeholder="(auto)" /></td>
+        <td>
+          {% if c.confidence == 'high' %}<span class="badge badge-ok">high</span>
+          {% else %}<span class="badge badge-low">low</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post" action="/business/{{ active.id }}/catalog/confirm" onsubmit="return collect()">
+    <input type="hidden" name="rows_json" id="rows_json" />
+    <div style="margin-top:1rem;">
+      <button type="submit">Confirm &amp; add to catalog</button>
+      <a class="btn btn-secondary" href="/business?business_id={{ active.id }}">Cancel</a>
+    </div>
+  </form>
+</div>
+
+<script>
+function collect() {
+  var rows = [];
+  document.querySelectorAll('#review-table tbody tr').forEach(function (tr) {
+    if (!tr.querySelector('.keep').checked) return;
+    rows.push({
+      name: tr.querySelector('.name').value,
+      price: tr.querySelector('.price').value,
+      sku: tr.querySelector('.sku').value,
+      image: tr.querySelector('.image').value,
+    });
+  });
+  document.getElementById('rows_json').value = JSON.stringify(rows);
+  return true;
+}
+</script>
+{% endblock %}

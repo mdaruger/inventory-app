@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Sales — Inventory Manager{% endblock %}
+{% block body %}
+<h1>Sales Portal</h1>
+
+{% set error = request.query_params.get('error') %}
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+{% if stores %}
+<div class="card">
+  <form method="get" action="/sales" class="inline-form">
+    <label style="margin:0;">Store:</label>
+    <select name="store_id" onchange="this.form.submit()">
+      {% for s in stores %}
+      <option value="{{ s.id }}" {% if s.id == store_id %}selected{% endif %}>{{ s.business.name }} / {{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Inventory</h2>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>SKU</th><th>Price</th><th>Qty</th><th>Record sale</th><th>Record receipt</th></tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td>{{ r.name }}</td>
+        <td>{{ r.sku }}</td>
+        <td>${{ "%.2f"|format(r.price) }}</td>
+        <td>
+          {{ r.quantity }}
+          {% if r.low %}<span class="badge badge-low">low</span>{% endif %}
+        </td>
+        <td>
+          <form method="post" action="/sales/movement" class="inline-form">
+            <input type="hidden" name="inventory_id" value="{{ r.inventory_id }}" />
+            <input type="hidden" name="store_id" value="{{ store_id }}" />
+            <input type="hidden" name="movement_type" value="SALE" />
+            <input type="number" name="quantity" value="1" min="1" />
+            <button class="btn-sm btn-danger" type="submit">Sell</button>
+          </form>
+        </td>
+        <td>
+          <form method="post" action="/sales/movement" class="inline-form">
+            <input type="hidden" name="inventory_id" value="{{ r.inventory_id }}" />
+            <input type="hidden" name="store_id" value="{{ store_id }}" />
+            <input type="hidden" name="movement_type" value="RECEIPT" />
+            <input type="number" name="quantity" value="1" min="1" />
+            <button class="btn-sm" type="submit">Receive</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="6" class="muted">No inventory for this store.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card"><p class="muted">You don't have access to any stores yet. Ask an admin to grant access.</p></div>
+{% endif %}
+{% endblock %}

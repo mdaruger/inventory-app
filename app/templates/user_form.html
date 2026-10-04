@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}New User — Inventory Manager{% endblock %}
+{% block body %}
+<h1>Create User</h1>
+<div class="card">
+  <form method="post" action="/admin/users">
+    <label>Username</label>
+    <input name="username" required />
+    <label>Password</label>
+    <input name="password" type="password" required />
+    <label>Role</label>
+    <select name="role" id="role" onchange="toggleAccess()">
+      <option value="BUSINESS_ADMIN">Business Admin</option>
+      <option value="SALES">Sales</option>
+      <option value="SUPERUSER">Superuser</option>
+    </select>
+
+    <div id="business-access">
+      <label>Business access (admins &amp; sales — select one or more)</label>
+      {% for b in businesses %}
+      <div><label style="display:inline; color:var(--ink);">
+        <input type="checkbox" name="business_ids" value="{{ b.id }}" style="width:auto;" /> {{ b.name }}
+      </label></div>
+      {% endfor %}
+    </div>
+
+    <div id="store-access">
+      <label>Store access (sales only — scopes which stores they see)</label>
+      {% for s in stores %}
+      <div><label style="display:inline; color:var(--ink);">
+        <input type="checkbox" name="store_ids" value="{{ s.id }}" style="width:auto;" />
+        {{ s.business.name }} / {{ s.name }}
+      </label></div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top:1rem;">
+      <button type="submit">Create user</button>
+      <a class="btn btn-secondary" href="/admin">Cancel</a>
+    </div>
+  </form>
+</div>
+<script>
+function toggleAccess() {
+  var role = document.getElementById('role').value;
+  document.getElementById('store-access').style.display = (role === 'SALES') ? 'block' : 'none';
+  document.getElementById('business-access').style.display = (role === 'SUPERUSER') ? 'none' : 'block';
+}
+toggleAccess();
+</script>
+{% endblock %}

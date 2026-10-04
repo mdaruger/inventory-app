@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    container_name: inventory-app
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the SQLite DB and uploaded photos across restarts
+      - ./data:/app/data
+    environment:
+      DATABASE_URL: sqlite:////app/data/inventory.db
+      UPLOAD_DIR: /app/data/uploads
+      SECRET_KEY: local-dev-secret-change-me
+    restart: unless-stopped

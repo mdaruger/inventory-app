@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Catalog — {{ active.name }}{% endblock %}
+{% block body %}
+<h1>{{ active.name }} — Catalog</h1>
+
+{% if businesses|length > 1 %}
+<div class="card">
+  <form method="get" action="/business" class="inline-form">
+    <label style="margin:0;">Business:</label>
+    <select name="business_id" onchange="this.form.submit()">
+      {% for b in businesses %}
+      <option value="{{ b.id }}" {% if b.id == active.id %}selected{% endif %}>{{ b.name }}</option>
+      {% endfor %}
+    </select>
+  </form>
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Upload catalog from photos</h2>
+  <p class="muted">Select a folder of product/price-tag photos. The system runs OCR and
+  lets you review &amp; edit the extracted name, price and SKU before adding them.</p>
+  <form method="post" action="/business/{{ active.id }}/catalog/upload" enctype="multipart/form-data">
+    <input type="file" name="photos" multiple webkitdirectory directory accept="image/*" />
+    <p class="muted" style="font-size:0.8rem;">Tip: you can also pick individual image files instead of a folder.</p>
+    <button type="submit">Upload &amp; extract</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Add item manually</h2>
+  <form method="post" action="/business/{{ active.id }}/catalog/manual" class="inline-form">
+    <input name="name" placeholder="Item name" required style="max-width:220px;" />
+    <input name="price" type="number" step="0.01" placeholder="Price" />
+    <input name="sku" placeholder="SKU (optional)" style="max-width:160px;" />
+    <button type="submit">Add</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2>Catalog ({{ catalog|length }} items)</h2>
+  <a class="btn btn-sm btn-secondary" href="/business/{{ active.id }}/inventory">Manage inventory →</a>
+  <table>
+    <thead><tr><th>SKU</th><th>Name</th><th>Price</th><th>Source</th></tr></thead>
+    <tbody>
+      {% for item in catalog %}
+      <tr>
+        <td>{{ item.sku }}</td>
+        <td>{{ item.name }}</td>
+        <td>${{ "%.2f"|format(item.price) }}</td>
+        <td>{% if item.source_image %}<img class="thumb" src="/uploads/{{ item.source_image }}" />{% else %}<span class="muted">manual</span>{% endif %}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="muted">No catalog items yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
